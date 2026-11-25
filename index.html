@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<title>DIMZ HORROR NIGHT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="vig"></div><div id="fx"></div><div id="flash"></div>
+<div id="lookzone"></div>
+
+<!-- MENU -->
+<div id="menu" class="screen active">
+  <div class="logo"><h1 class="glitch" data-t="DIMZ HORROR NIGHT">DIMZ HORROR NIGHT</h1><p class="tag">Bertahan hidup. Bersama. Jangan menoleh.</p></div>
+  <div class="panel">
+    <input id="nick" maxlength="14" placeholder="NICKNAME" autocomplete="off">
+    <div class="row"><select id="map"><option value="hospital">Rumah Sakit Terbengkalai</option><option value="school">Sekolah Angker</option><option value="forest">Hutan Gelap</option><option value="house">Rumah Tua</option><option value="lab">Laboratorium Rahasia</option></select>
+    <select id="mode"><option value="survival">Survival (bertahan sampai fajar)</option><option value="escape">Escape (kunci + teka-teki)</option><option value="hide">Hide &amp; Seek (sembunyi)</option><option value="solo">Solo (sendirian)</option></select></div>
+    <button id="bCreate" class="btn">BUAT ROOM / MAIN</button>
+    <div class="row"><input id="rcode" maxlength="4" placeholder="KODE ROOM" autocomplete="off"><button id="bJoin" class="btn alt">GABUNG</button></div>
+    <button id="bHow" class="link">Cara bermain &amp; kontrol</button>
+    <div id="err"></div><div id="conn">Menyambung ke server...</div>
+  </div>
+</div>
+
+<!-- LOBBY -->
+<div id="lobby" class="screen">
+  <h2 class="glitch" data-t="LOBBY">LOBBY</h2>
+  <div class="panel">
+    <div class="big">KODE ROOM: <b id="lcode">----</b></div>
+    <div id="linfo" class="dim"></div>
+    <ul id="plist"></ul>
+    <p class="dim">Bagikan kode room ke temanmu (maks. 8 pemain).</p>
+    <button id="bStart" class="btn">MULAI</button>
+    <div class="row"><button id="bMicL" class="btn alt">🎤 Voice: MATI</button><button id="bLeave" class="btn alt">KELUAR</button></div>
+  </div>
+</div>
+
+<!-- SIAP -->
+<div id="ready" class="screen"><h2 class="glitch" data-t="SIAP?">SIAP?</h2><p class="dim" id="rinfo"></p><button id="bGo" class="btn">MASUK KEGELAPAN</button></div>
+
+<!-- AKHIR -->
+<div id="end" class="screen"><h1 id="etitle" class="glitch" data-t="">-</h1><p id="ereason"></p><p class="dim" id="estat"></p>
+  <div class="row"><button id="bAgain" class="btn">LOBBY</button><button id="bMenu" class="btn alt">MENU</button></div></div>
+
+<!-- BANTUAN -->
+<div id="how" class="screen"><div class="panel left"><h2>KONTROL</h2>
+<p><b>PC:</b> WASD gerak · Mouse lihat · Shift lari · C jongkok · E interaksi · F senter · H sembunyi (loker) · Enter chat · V voice · Spasi ganti spectate</p>
+<p><b>Android:</b> Joystick kiri gerak · Geser layar kanan = kamera · Tombol RUN / JONGKOK / AKSI / SENTER / SEMBUNYI di kanan bawah.</p>
+<h2>TUJUAN</h2>
+<p><b>Survival:</b> bertahan sampai fajar. <b>Hide&amp;Seek:</b> 2 monster, sembunyi di loker. <b>Escape / Solo:</b> kumpulkan 3 kunci, baca 4 catatan untuk kode terminal, buka gerbang, kabur.</p>
+<p>Monster mendengar langkah: <b>lari = sangat berisik</b>, jongkok = hampir senyap. Ambil baterai untuk senter. Jika mati, kamu menjadi spectator.</p>
+<button id="bHowX" class="btn">TUTUP</button></div></div>
+
+<!-- HUD -->
+<div id="hud">
+  <div id="top"><span id="obj"></span><span id="timer"></span></div>
+  <div id="info"><span id="keysI"></span><span id="codeI"></span><span id="aliveI"></span></div>
+  <div id="bars"><div class="bar"><i id="stam"></i><b>STAMINA</b></div><div class="bar bat"><i id="batt"></i><b>BATERAI</b></div></div>
+  <div id="cross"></div><div id="prompt"></div><div id="toast"></div>
+  <div id="spec"><span id="specN"></span><button id="bNext" class="tb">GANTI ▶</button></div>
+  <div id="hidden">BERSEMBUNYI — tekan SEMBUNYI untuk keluar</div>
+  <div id="touch">
+    <div id="joy"><div id="knob"></div></div>
+    <div id="btns"><button id="bRun" class="tb">LARI</button><button id="bCrouch" class="tb">JONGKOK</button><button id="bFl" class="tb">SENTER</button><button id="bHide" class="tb">SEMBUNYI</button><button id="bAct" class="tb big">AKSI</button></div>
+  </div>
+</div>
+<div id="resume" class="screen"><button class="btn">KLIK UNTUK LANJUT</button></div>
+<div id="codepanel" class="screen"><div class="panel"><h2>TERMINAL</h2><p class="dim" id="cdigits"></p><input id="cinput" maxlength="4" inputmode="numeric" placeholder="----"><div class="row"><button id="cOk" class="btn">KIRIM</button><button id="cNo" class="btn alt">BATAL</button></div></div></div>
+
+<!-- CHAT & VOICE -->
+<div id="chat"><div id="clog"></div><div id="cbox"><input id="cin" maxlength="120" placeholder="Pesan..." autocomplete="off"></div></div>
+<div id="side"><button id="chatBtn" class="tb">💬</button><button id="micBtn" class="tb">🎤</button></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/lib/three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>')</script>
+<script src="maps.js"></script>
+<script src="multiplayer.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

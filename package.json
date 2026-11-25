@@ -1,0 +1,9 @@
+{
+  "name": "dimz-horror-night",
+  "version": "1.0.0",
+  "description": "DIMZ HORROR NIGHT - game horor survival multiplayer 3D (Three.js + Socket.IO)",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=16" },
+  "dependencies": { "socket.io": "^4.7.5", "three": "0.128.0" }
+}
